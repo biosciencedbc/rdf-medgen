@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+cd /
+export RUBYOPT=-EUTF-8
+
+test -e NAMES.txt && rm -rf NAMES.txt
+test -e MGDEF.txt && rm -rf MGDEF.txt
+test -e MGSTY.txt && rm -rf MGSTY.txt
+test -e MGCONSO.txt && rm -rf MGCONSO.txt
+test -e MGREL_1.txt && rm -rf MGREL_1.txt
+test -e MGREL_2.txt && rm -rf MGREL_2.txt
+test -e MGSAT_1.txt && rm -rf MGSAT_1.txt
+test -e MGSAT_2.txt && rm -rf MGSAT_2.txt
+test -e medgen_pubmed_lnk_rdf.txt && rm -rf medgen_pubmed_lnk_pdf.txt
+
+curl https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/ > index.html
+
+egrep *.csv.gz index.html | awk 'match($0, />.*</) {print substr($0, RSTART+1, RLENGTH-2)}' |xargs -I FILE  wget ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/FILE > medgen.log
+wget ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz >> medgen.log
+
+find *.gz | xargs -I FILE gzip -d FILE
+
+ruby rdf_converter_medgen.rb -p --names NAMES.csv > /data/NAMES.ttl
+ruby rdf_converter_medgen.rb -p --mgdef MGDEF.csv > /data/MGDEF.ttl
+ruby rdf_converter_medgen.rb -p --mgsty MGSTY.csv > /data/MGSTY.ttl
+ruby rdf_converter_medgen.rb -p --mgconso MGCONSO.csv > /data/MGCONSO.ttl
+ruby rdf_converter_medgen.rb -p --mgrel MGREL_1.csv > /data/MGREL_1.ttl
+ruby rdf_converter_medgen.rb -p --mgrel MGREL_2.csv > /data/MGREL_2.ttl
+ruby rdf_converter_medgen.rb -p --mgsat MGSAT_1.csv > /data/MGSAT_1.ttl
+ruby rdf_converter_medgen.rb -p --mgsat MGSAT_2.csv > /data/MGSAT_2.ttl
+ruby rdf_converter_medgen.rb -p --pubmed medgen_pubmed_lnk.txt > /data/medgen_pubmed_lnk_rdf.ttl
+
+rm -rf index.html NAMES.csv MGDEF.csv MGSTY.csv MGCONSO.csv MGREL_1.csv MGREL_2.csv MGSAT_1.csv MGSAT_2.csv MERGED.csv medgen_pubmed_lnk.txt
