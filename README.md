@@ -1,4 +1,3 @@
-# medgen
 # RDF converter for MedGen
 
 Download Medgen and convert into RDF 
