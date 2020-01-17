@@ -13,10 +13,10 @@ test -e MGSAT_1.txt && rm -rf MGSAT_1.txt
 test -e MGSAT_2.txt && rm -rf MGSAT_2.txt
 test -e medgen_pubmed_lnk_rdf.txt && rm -rf medgen_pubmed_lnk_pdf.txt
 
-curl https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/ > index.html
+curl -sS https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/ > index.html
 
-egrep *.csv.gz index.html | awk 'match($0, />.*</) {print substr($0, RSTART+1, RLENGTH-2)}' |xargs -I FILE  wget ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/FILE > medgen.log
-wget ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz >> medgen.log
+egrep *.csv.gz index.html | awk 'match($0, />.*</) {print substr($0, RSTART+1, RLENGTH-2)}' |xargs -I FILE  wget ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/FILE 2> /dev/stdout
+wget ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz 2> /dev/stdout
 
 find *.gz | xargs -I FILE gzip -d FILE
 
@@ -31,3 +31,5 @@ ruby rdf_converter_medgen.rb -p --mgsat MGSAT_2.csv > /data/MGSAT_2.ttl
 ruby rdf_converter_medgen.rb -p --pubmed medgen_pubmed_lnk.txt > /data/medgen_pubmed_lnk_rdf.ttl
 
 rm -rf index.html NAMES.csv MGDEF.csv MGSTY.csv MGCONSO.csv MGREL_1.csv MGREL_2.csv MGSAT_1.csv MGSAT_2.csv MERGED.csv medgen_pubmed_lnk.txt
+
+chmod 777 /data/NAMES.ttl /data/MGDEF.ttl /data/MGSTY.ttl /data/MGCONSO.ttl /data/MGREL_1.ttl /data/MGREL_2.ttl /data/MGSAT_1.ttl  /data/MGSAT_2.ttl /data/medgen_pubmed_lnk_rdf.ttl
