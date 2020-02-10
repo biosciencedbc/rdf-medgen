@@ -15,7 +15,9 @@ $ docker build --tag rdf-medgen
 ## Execution
 
 ```bash
-$ docker run --rm -v $(pwd):/data rdf-medgen
+$ docker run --rm -v [WORK]:/work -v [DATA]:/data rdf-medgen
 ```
 
+[WORK]: Download file location
 
+[DATA]: Converted file location
