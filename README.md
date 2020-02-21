@@ -9,10 +9,10 @@ Download Medgen and convert into RDF
 ## Installation
 
 ```bash
-$ docker build --tag rdf-medgen
+$ docker build --tag rdf-medgen .
 ```
 
-## Execution
+## Run
 
 ```bash
 $ docker run --rm -v [WORK]:/work -v [DATA]:/data rdf-medgen
