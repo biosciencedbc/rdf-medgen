@@ -1,26 +1,45 @@
 #!/usr/bin/env bash
 
-cd /
 export RUBYOPT=-EUTF-8
 
-test -e /work/NAMES.txt && rm -rf /work/NAMES.txt
-test -e /work/MGDEF.txt && rm -rf /work/MGDEF.txt
-test -e /work/MGSTY.txt && rm -rf /work/MGSTY.txt
-test -e /work/MGCONSO.txt && rm -rf /work/MGCONSO.txt
-test -e /work/MGREL_1.txt && rm -rf /work/MGREL_1.txt
-test -e /work/MGREL_2.txt && rm -rf /work/MGREL_2.txt
-test -e /work/MGSAT_1.txt && rm -rf /work/MGSAT_1.txt
-test -e /work/MGSAT_2.txt && rm -rf /work/MGSAT_2.txt
-test -e /work/medgen_pubmed_lnk_rdf.txt && rm -rf /work/medgen_pubmed_lnk_pdf.txt
+FORCE_CONVERT=0
 
-curl -sS https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/ > index.html
+#
+#  See https://qiita.com/b4b4r07/items/dcd6be0bb9c9185475bb for getopts
+#
+while getopts f OPT
+do
+  case $OPT in
+    f)  FORCE_CONVERT=1
+        ;;
+  esac
+done
+shift  $(($OPTIND - 1))
 
 cd /work
 
-egrep *.csv.gz /index.html | awk 'match($0, />.*</) {print substr($0, RSTART+1, RLENGTH-2)}' |xargs -I FILE  wget ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/FILE 2> /dev/stdout
-wget ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz 2> /dev/stdout
+#
+#  See http://www.itsenka.com/contents/development/unix-linux/wget.html
+#      https://www.gnu.org/software/wget/manual/wget.html 
+#  for wget options
+#    
+wget -c -nd -N -r -l1 ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/  2> ./wget.log
+wget -c -nd -N ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz 2>> ./wget.log
 
-find *.gz | xargs -I FILE gzip -d FILE
+cat wget.log > /dev/stdout
+
+num_of_newfiles=`egrep "' saved \[[0-9]+\]" wget.log | grep -v "'.listing' saved" | wc -l `
+
+if [ $num_of_newfiles -eq 0 ] && [ $FORCE_CONVERT -eq 0 ]; then
+  echo
+  echo "No RDF files were generated because no new files were found at the download site."
+  exit 0
+fi
+
+#
+#  See https://www.atmarkit.co.jp/ait/articles/1608/09/news018.html for gzip options
+#
+find *.gz | xargs -I FILE gzip -f -d -k FILE
 
 ruby /rdf_converter_medgen.rb -p --names NAMES.csv > /data/NAMES.ttl
 ruby /rdf_converter_medgen.rb -p --mgdef MGDEF.csv > /data/MGDEF.ttl
@@ -32,6 +51,4 @@ ruby /rdf_converter_medgen.rb -p --mgsat MGSAT_1.csv > /data/MGSAT_1.ttl
 ruby /rdf_converter_medgen.rb -p --mgsat MGSAT_2.csv > /data/MGSAT_2.ttl
 ruby /rdf_converter_medgen.rb -p --pubmed medgen_pubmed_lnk.txt > /data/medgen_pubmed_lnk_rdf.ttl
 
-chmod 777 NAMES.csv MGDEF.csv MGSTY.csv MGCONSO.csv MGREL_1.csv MGREL_2.csv MGSAT_1.csv MGSAT_2.csv MERGED.csv medgen_pubmed_lnk.txt
-
-chmod 777 /data/NAMES.ttl /data/MGDEF.ttl /data/MGSTY.ttl /data/MGCONSO.ttl /data/MGREL_1.ttl /data/MGREL_2.ttl /data/MGSAT_1.ttl  /data/MGSAT_2.ttl /data/medgen_pubmed_lnk_rdf.ttl
+chmod 666 /data/NAMES.ttl /data/MGDEF.ttl /data/MGSTY.ttl /data/MGCONSO.ttl /data/MGREL_1.ttl /data/MGREL_2.ttl /data/MGSAT_1.ttl  /data/MGSAT_2.ttl /data/medgen_pubmed_lnk_rdf.ttl

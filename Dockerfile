@@ -8,6 +8,4 @@ ADD ./rdf_converter_medgen/rdf_converter_medgen.rb /
 
 RUN chmod 777 /bin/convert_medgen
 
-CMD convert_medgen
-
-
+ENTRYPOINT [ "convert_medgen" ]
