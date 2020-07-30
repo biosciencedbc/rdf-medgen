@@ -23,8 +23,12 @@ cd /work
 #      https://www.gnu.org/software/wget/manual/wget.html 
 #  for wget options
 #    
+now=`date "+%Y%m%d-%H%M%S"`
+echo "Started wget at $now"
 wget -c -nd -N -r -l1 ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/  2> ./wget.log
 wget -c -nd -N ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz 2>> ./wget.log
+now=`date "+%Y%m%d-%H%M%S"`
+echo "Finished wget at $now"
 
 cat wget.log > /dev/stdout
 
@@ -41,14 +45,23 @@ fi
 #
 find *.gz | xargs -I FILE gzip -f -d -k FILE
 
-ruby /rdf_converter_medgen.rb -p --names NAMES.csv > /data/NAMES.ttl
-ruby /rdf_converter_medgen.rb -p --mgdef MGDEF.csv > /data/MGDEF.ttl
-ruby /rdf_converter_medgen.rb -p --mgsty MGSTY.csv > /data/MGSTY.ttl
-ruby /rdf_converter_medgen.rb -p --mgconso MGCONSO.csv > /data/MGCONSO.ttl
-ruby /rdf_converter_medgen.rb -p --mgrel MGREL_1.csv > /data/MGREL_1.ttl
-ruby /rdf_converter_medgen.rb -p --mgrel MGREL_2.csv > /data/MGREL_2.ttl
-ruby /rdf_converter_medgen.rb -p --mgsat MGSAT_1.csv > /data/MGSAT_1.ttl
-ruby /rdf_converter_medgen.rb -p --mgsat MGSAT_2.csv > /data/MGSAT_2.ttl
-ruby /rdf_converter_medgen.rb -p --pubmed medgen_pubmed_lnk.txt > /data/medgen_pubmed_lnk_rdf.ttl
+now=`date "+%Y%m%d-%H%M%S"`
+echo "Started convert at $now"
+ruby /rdf_converter_medgen.rb -p --names NAMES.csv > /data/NAMES.ttl &
+ruby /rdf_converter_medgen.rb -p --mgdef MGDEF.csv > /data/MGDEF.ttl &
+ruby /rdf_converter_medgen.rb -p --mgsty MGSTY.csv > /data/MGSTY.ttl &
+ruby /rdf_converter_medgen.rb -p --mgconso MGCONSO.csv > /data/MGCONSO.ttl &
+ruby /rdf_converter_medgen.rb -p --mgrel MGREL_1.csv > /data/MGREL_1.ttl &
+ruby /rdf_converter_medgen.rb -p --mgrel MGREL_2.csv > /data/MGREL_2.ttl &
+ruby /rdf_converter_medgen.rb -p --mgsat MGSAT_1.csv > /data/MGSAT_1.ttl &
+ruby /rdf_converter_medgen.rb -p --mgsat MGSAT_2.csv > /data/MGSAT_2.ttl &
+ruby /rdf_converter_medgen.rb -p --pubmed medgen_pubmed_lnk.txt > /data/medgen_pubmed_lnk_rdf.ttl &
+
+wait
 
 chmod 666 /data/NAMES.ttl /data/MGDEF.ttl /data/MGSTY.ttl /data/MGCONSO.ttl /data/MGREL_1.ttl /data/MGREL_2.ttl /data/MGSAT_1.ttl  /data/MGSAT_2.ttl /data/medgen_pubmed_lnk_rdf.ttl
+now=`date "+%Y%m%d-%H%M%S"`
+echo "Finished convert at $now"
+
+
+
