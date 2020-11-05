@@ -30,9 +30,11 @@ wget -c -nd -N ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz 2>
 now=`date "+%Y%m%d-%H%M%S"`
 echo "Finished wget at $now"
 
+chmod 777 $(ls *.gz)
+
 cat wget.log > /dev/stdout
 
-num_of_newfiles=`egrep " saved \[[0-9]+\]" wget.log | grep -v "'.listing' saved" | wc -l `
+num_of_newfiles=`egrep " saved \[[0-9]+\]" wget.log | grep -v ".listing" | wc -l `
 
 if [ $num_of_newfiles -eq 0 ] && [ $FORCE_CONVERT -eq 0 ]; then
   echo
@@ -58,6 +60,8 @@ ruby /rdf_converter_medgen.rb -p --mgsat MGSAT_2.csv > /data/MGSAT_2.ttl &
 ruby /rdf_converter_medgen.rb -p --pubmed medgen_pubmed_lnk.txt > /data/medgen_pubmed_lnk_rdf.ttl &
 
 wait
+
+rm NAMES.csv MGDEF.csv MGSTY.csv MGCONSO.csv MGREL_1.csv MGREL_2.csv MGSAT_1.csv MGSAT_2.csv medgen_pubmed_lnk.txt
 
 chmod 666 /data/NAMES.ttl /data/MGDEF.ttl /data/MGSTY.ttl /data/MGCONSO.ttl /data/MGREL_1.ttl /data/MGREL_2.ttl /data/MGSAT_1.ttl  /data/MGSAT_2.ttl /data/medgen_pubmed_lnk_rdf.ttl
 now=`date "+%Y%m%d-%H%M%S"`
