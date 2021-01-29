@@ -25,8 +25,15 @@ cd /work
 #    
 now=`date "+%Y%m%d-%H%M%S"`
 echo "Started wget at $now"
-wget -c -nd -N -r -l1 ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/  2> ./wget.log
-wget -c -nd -N ftp://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz 2>> ./wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/NAMES.csv.gz  2> ./wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGDEF.csv.gz  2>> ./wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGSTY.csv.gz  2>> ./wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGCONSO.csv.gz  2>> ./wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGREL_1.csv.gz  2>> ./wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGREL_2.csv.gz  2>> ./wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGSAT_1.csv.gz  2>> ./wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGSAT_2.csv.gz  2>> ./wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz 2>> ./wget.log
 now=`date "+%Y%m%d-%H%M%S"`
 echo "Finished wget at $now"
 
