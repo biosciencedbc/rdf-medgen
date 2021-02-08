@@ -25,23 +25,30 @@ cd /work
 #    
 now=`date "+%Y%m%d-%H%M%S"`
 echo "Started wget at $now"
-wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/NAMES.csv.gz  2> ./wget.log
-wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGDEF.csv.gz  2>> ./wget.log
-wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGSTY.csv.gz  2>> ./wget.log
-wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGCONSO.csv.gz  2>> ./wget.log
-wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGREL_1.csv.gz  2>> ./wget.log
-wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGREL_2.csv.gz  2>> ./wget.log
-wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGSAT_1.csv.gz  2>> ./wget.log
-wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGSAT_2.csv.gz  2>> ./wget.log
-wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz 2>> ./wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/NAMES.csv.gz  2> /wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGDEF.csv.gz  2>> /wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGSTY.csv.gz  2>> /wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGCONSO.csv.gz  2>> /wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGREL_1.csv.gz  2>> /wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGREL_2.csv.gz  2>> /wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGSAT_1.csv.gz  2>> /wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGSAT_2.csv.gz  2>> /wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz 2>> /wget.log
+
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/MedGen_HPO_OMIM_Mapping.txt.gz 2>> /wget.log
+# 更新時に最新ファイルを取得するよう要修正
+wget -c -nd -N http://data.bioontology.org/ontologies/STY/submissions/16/download?apikey=8b5b7825-538d-40e0-9e9e-5ab9274a9aeb -O umls_semantictypes.ttl 2>> /wget.log
+wget -c -nd -N https://ftp.ncbi.nlm.nih.gov/gene/DATA/mim2gene_medgen 2>> /wget.log
+
+
 now=`date "+%Y%m%d-%H%M%S"`
 echo "Finished wget at $now"
 
-chmod 777 $(ls *.gz)
+chmod 777 $(ls)
 
-cat wget.log > /dev/stdout
+cat /wget.log > /dev/stdout
 
-num_of_newfiles=`egrep " saved \[[0-9]+\]" wget.log | grep -v ".listing" | wc -l `
+num_of_newfiles=`egrep " saved \[[0-9]+/+[0-9]\]" /wget.log | grep -v ".listing" | wc -l `
 
 if [ $num_of_newfiles -eq 0 ] && [ $FORCE_CONVERT -eq 0 ]; then
   echo
@@ -65,12 +72,14 @@ ruby /rdf_converter_medgen.rb -p --mgrel MGREL_2.csv > /data/MGREL_2.ttl &
 ruby /rdf_converter_medgen.rb -p --mgsat MGSAT_1.csv > /data/MGSAT_1.ttl &
 ruby /rdf_converter_medgen.rb -p --mgsat MGSAT_2.csv > /data/MGSAT_2.ttl &
 ruby /rdf_converter_medgen.rb -p --pubmed medgen_pubmed_lnk.txt > /data/medgen_pubmed_lnk_rdf.ttl &
+ruby /rdf_converter_medgen.rb -p --omim MedGen_HPO_OMIM_Mapping.txt --sty umls_semantictypes.ttl > /data/MedGen_HPO_OMIM_Mapping.ttl &
+ruby /rdf_converter_medgen.rb -p --gene mim2gene_medgen > /data/mim2gene_medgen.ttl &
 
 wait
 
 rm NAMES.csv MGDEF.csv MGSTY.csv MGCONSO.csv MGREL_1.csv MGREL_2.csv MGSAT_1.csv MGSAT_2.csv medgen_pubmed_lnk.txt
 
-chmod 666 /data/NAMES.ttl /data/MGDEF.ttl /data/MGSTY.ttl /data/MGCONSO.ttl /data/MGREL_1.ttl /data/MGREL_2.ttl /data/MGSAT_1.ttl  /data/MGSAT_2.ttl /data/medgen_pubmed_lnk_rdf.ttl
+chmod 777 /data/NAMES.ttl /data/MGDEF.ttl /data/MGSTY.ttl /data/MGCONSO.ttl /data/MGREL_1.ttl /data/MGREL_2.ttl /data/MGSAT_1.ttl  /data/MGSAT_2.ttl /data/medgen_pubmed_lnk_rdf.ttl /data/MedGen_HPO_OMIM_Mapping.ttl /data/mim2gene_medgen.ttl
 now=`date "+%Y%m%d-%H%M%S"`
 echo "Finished convert at $now"
 
