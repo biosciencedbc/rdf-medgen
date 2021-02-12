@@ -36,7 +36,7 @@ wget -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/csv/MGSAT_2.csv.gz  2>> /wget.lo
 wget -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/medgen_pubmed_lnk.txt.gz 2>> /wget.log
 
 wget -N https://ftp.ncbi.nlm.nih.gov/pub/medgen/MedGen_HPO_OMIM_Mapping.txt.gz 2>> /wget.log
-# 更新時に最新ファイルを取得するよう要修正
+# 更新時に最新ファイルを取得するよう要修正, Oオプションを指定しているので毎回ダウンロードされる
 wget -N http://data.bioontology.org/ontologies/STY/submissions/16/download?apikey=8b5b7825-538d-40e0-9e9e-5ab9274a9aeb -O umls_semantictypes.ttl 2>> /wget.log
 wget -N https://ftp.ncbi.nlm.nih.gov/gene/DATA/mim2gene_medgen 2>> /wget.log
 
@@ -48,9 +48,9 @@ chmod 777 $(ls)
 
 cat /wget.log > /dev/stdout
 
-num_of_newfiles=`egrep " saved \[[0-9]+/+[0-9]\]" /wget.log | grep -v ".listing" | wc -l `
+num_of_newfiles=`egrep " saved \[+[0-9]+/+[0-9]+\]" /wget.log | grep -v ".listing" | wc -l `
 
-if [ $num_of_newfiles -eq 0 ] && [ $FORCE_CONVERT -eq 0 ]; then
+if [ $num_of_newfiles -le 1 ] && [ $FORCE_CONVERT -eq 0 ]; then
   echo
   echo "No RDF files were generated because no new files were found at the download site."
   exit 0
